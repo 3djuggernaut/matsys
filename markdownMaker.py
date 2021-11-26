@@ -1,14 +1,17 @@
 ﻿import jconfig
 import recsHandle as recs
 import os
-md_path=jconfig.load_attr("MD_path")
-pdf_path=jconfig.load_attr("PDF_path")
-exp_path=jconfig.load_attr("PDF_exp")
+md_path=jconfig.load_attr("MD")
+pdf_path=jconfig.load_attr("PDF")
+exp_path=jconfig.load_attr("EXP")
+image_path=jconfig.load_attr("IMAGE")
+attr_path=jconfig.load_attr("ATTR")
 
 class Mdfile:
     id=0
     title=''
     doi=''
+    filename=''
     cem=[]
     attr1=''
     attr2=''
@@ -35,15 +38,21 @@ class Mdfile:
         return
 
     
+    # image/experiment/
     # 设置DOI的同时关联好图片文件夹
     def add_doi(self,text):
         self.doi=text  
-        jsonobj=recs.load_recs()
-        for item in jsonobj:
-            if item.__contains__('DI'):
-                if item['DI']==self.doi:
-                    if item.__contains__('Image_path'):
-                        self.image_path=item['Image_path']
+    
+    def add_filename(self,text):
+        self.filename=text
+
+    def getImagePath(self):
+        return f'{os.path.join(image_path,self.filename)}'
+    def getAttrPath(self):
+        return f'{os.path.join(attr_path,self.filename)}.txt'    
+    def getExpPath(self):
+        return f'{os.path.join(exp_path,self.filename)}.txt'
+    
 
     def add_id(self,id):
         self.id=id
@@ -90,10 +99,8 @@ class Mdfile:
 
         # 显示图片，尺寸控制还需要再研究
 
-        num=len(os.listdir(self.image_path))
-        # print(num)
-        for item in os.listdir(self.image_path):
-            fd.write(f'![]({os.path.join(self.image_path,item)})\n\n')
+        for item in os.listdir(self.getImagePath()):
+            fd.write(f'![]({os.path.join(self.getImagePath(),item)})\n\n')
             # 用来调整图片尺寸的参数
             # {{:height="100px" width="400px"}}
 
@@ -127,38 +134,38 @@ def test():
     m.add_attr3_para('Another about 3')
     m.makemd()
 
-def makeMDProcess():
+def makeMD_process():
     jsonobj=recs.load_recs()
     index=0
     for item in jsonobj:
-        if item.__contains__("CE"):
+        if item['ishandle']==True:
             m=Mdfile()
             m.add_id(index)
             index+=1
             m.add_doi(item['DI'])
+            m.add_filename(item['filename'])
             m.add_title(item['TI'])
             # 添加属性
-            if(item.__contains__("PDF_Attr")):
-                attrfd=open(item['PDF_Attr'],'r',encoding='utf-8')
-                attrnum1=(int)(attrfd.readline())
-                for count in range(attrnum1):
-                    m.add_attr1_para(attrfd.readline())
-                attrnum2=(int)(attrfd.readline())
-                for count in range(attrnum2):
-                    m.add_attr2_para(attrfd.readline())        
-                attrnum3=(int)(attrfd.readline())
-                for count in range(attrnum3):
-                    m.add_attr3_para(attrfd.readline())
+            attrfd=open(m.getAttrPath(),'r',encoding='utf-8')
+            attrnum1=(int)(attrfd.readline())
+            for count in range(attrnum1):
+                m.add_attr1_para(attrfd.readline())
+            attrnum2=(int)(attrfd.readline())
+            for count in range(attrnum2):
+                m.add_attr2_para(attrfd.readline())        
+            attrnum3=(int)(attrfd.readline())
+            for count in range(attrnum3):
+                m.add_attr3_para(attrfd.readline())
 
             for t in item["CE"]:
                 m.add_cem(t)
-            if item.__contains__('Exp_path'):
-                fd=open(item['Exp_path'],'r',encoding='utf-8')
-                tmptxt=''
-                for line in fd:
-                    tmptxt+=line
-                m.add_experiment(tmptxt)
-                fd.close()
+
+            fd=open(m.getExpPath(),'r',encoding='utf-8')
+            tmptxt=''
+            for line in fd:
+                tmptxt+=line
+            m.add_experiment(tmptxt)
+            fd.close()
     
             m.makemd()
             m.clear()
@@ -167,4 +174,4 @@ def makeMDProcess():
 
 # m的生命周期怎么这么长
 if __name__=='__main__':
-    makeMDProcess()
+    makeMD_process()

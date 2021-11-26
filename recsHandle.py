@@ -75,6 +75,7 @@ def registerHandlePDF_process():
         for item in jsonobj:
             if item['DI'][8:]==doi:
                 item['ishandle']=True
+                item['filename']=doi
                 print(f'FIND:{doi}')
                 count+=1
                 break
@@ -83,5 +84,5 @@ def registerHandlePDF_process():
 
 
 if __name__=='__main__':
-    # fromfile_process()
+    fromfile_process()
     registerHandlePDF_process()

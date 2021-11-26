@@ -3,16 +3,17 @@ from posixpath import join
 import jconfig
 import os
 import re
-txt_path=jconfig.load_attr('PDF_text_output')
-txt_after_filted=jconfig.load_attr("PDF_text")
-para_minlen=jconfig.load_attr('Para_minlen')
+txt_path=jconfig.load_attr('TEXT')
+filted_path=jconfig.load_attr("FILTED")
+para_minlen=20
 
+# 过滤段落用关键词
 keyword=['Abstract','experimental','abstraction','Introduction']
 alphaIslower=re.compile('[a-z]')
 attributeKeyword=['dielectric','tf']
 
 # 添加过滤规则用函数
-def paraFilter(para):
+def paraHandle(para):
 
     # 若含有关键词，则保留
     for item in keyword:
@@ -26,28 +27,30 @@ def paraFilter(para):
         return False
     return True
 
-def paraFilterSingle(filename):
+def paraFilter(filename):
     tmp=[]
     i=0
     fdr = open(os.path.join(txt_path,filename),'r',encoding='utf-8')
-    fdw = open(os.path.join(txt_after_filted,filename),'w',encoding='utf-8')
+    fdw = open(os.path.join(filted_path,filename),'w',encoding='utf-8')
+    # 还原段落
     for line in fdr:
-        if paraFilter(line):
-            if re.match(alphaIslower,line[0])==None:
+        if re.match(alphaIslower,line[0])==None:
+            if paraHandle(line):
                 tmp.append(line)
                 i+=1
-            else:
-                if i>=1:
-                    tmp[i-1]=tmp[i-1][:-1]+line
+        else:
+            if i>=1:
+                tmp[i-1]=tmp[i-1][:-1]+line
+    
     for line in tmp:
         fdw.write(line)
     fdr.close()
     fdw.close()
 
-def paraFilterProcess():
+def paraFilter_process():
     for item in os.listdir(txt_path):
-        paraFilterSingle(item)
+        paraFilter(item)
 
 if __name__=='__main__':
-    paraFilterProcess()
+    paraFilter_process()
 
