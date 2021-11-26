@@ -47,7 +47,7 @@ def getImage(filename):
 
 
 
-def getImageProcess():
+def getImage_process():
     total=len(os.listdir(pdf_path))
     count=0
     for item in os.listdir(pdf_path):
@@ -57,4 +57,4 @@ def getImageProcess():
     print("Finish Image Extract")
     
 if __name__=='__main__':
-    getImageProcess()  
+    getImage_process()  

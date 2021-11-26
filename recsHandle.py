@@ -67,7 +67,7 @@ def registerHandledPDF(filename):
     print(f'{filename}:not find')
     return False
 
-def registerHandlePDFProcess():
+def registerHandlePDF_process():
     jsonobj=load_recs()
     count=0
     for filename in os.listdir(pdf_path):
@@ -84,4 +84,4 @@ def registerHandlePDFProcess():
 
 if __name__=='__main__':
     # fromfile_process()
-    registerHandlePDFProcess()
+    registerHandlePDF_process()

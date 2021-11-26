@@ -4,7 +4,7 @@ import argparse
 import jconfig as j
 from pdfminer.high_level import extract_text
 
-def textExtractProcess():
+def textExtract_process():
 
     pdf_dir = j.load_attr('PDF')
     text_path = j.load_attr('TEXT')
@@ -22,4 +22,4 @@ def textExtractProcess():
 
 
 if __name__=='__main__':
-    textExtractProcess()
+    textExtract_process()
