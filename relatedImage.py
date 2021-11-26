@@ -9,11 +9,11 @@ image_path=j.load_attr('IMAGE')
 
 def dHash(img):
     # 差值hash
-    img=cv2.resize(img,(9,8))
+    img=cv2.resize(img,(17,16))
     gray=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     hash=[]
-    for i in range(8):
-        for j in range(8):
+    for i in range(16):
+        for j in range(16):
             if gray[i,j]>gray[i,j+1]:
                 hash.append(1)
             else:
@@ -31,38 +31,54 @@ def cmpHash(hash1,hash2):
             result+=1
     return result
 
+
+
 class ImageFolder:
     pdfname=''
     imagelist=[]
+    imagehashlist=[]
     boollist=[]
+    imageNum=0
 
     def __init__(self,pdfname) -> None:
         self.pdfname=pdfname
+        self.imagelist=[]
+        self.imagehashlist=[]
+        self.boollist=[]
+        self.imageNum=0
     
+    def __repr__(self) -> None:
+        print(self.imageNum)
+        print(self.boollist)
+        return f'{self.pdfname}'
     # 将所有的图片先求出hash
 
     def addImage(self):
         path=os.path.join(image_path,self.pdfname)
         for item in os.listdir(path):
-            tmp=[]
-            tmp.append(item)
+            self.imagelist.append(item)
             img=cv2.imread(os.path.join(path,item))
-            tmp.append(dHash(img))
-            self.imagelist.append(tmp)
+            self.imagehashlist.append(dHash(img))
+        self.imageNum=len(self.imagelist)
         self.boollist=[1 for v in range(len(self.imagelist))]
-        print(self.boollist)
+        
 
 def cmpFolder(folder1,folder2):
-    folder1_len=len(folder1.imagelist)
-    folder2_len=len(folder2.imagelist)
+    folder1_len=folder1.imageNum
+    folder2_len=folder2.imageNum
     for i in range(folder1_len):
-        for j in range(folder2_len):
-            result=cmpHash(folder1.imagelist[i][1],folder2.imagelist[j][1])
-            # 若两张图完全一样，则在两个集合中删除这两张图，并且退出当前循环
-            if result==0:
-                img_path=f'{image_path}/{folder1.pdfname}/{folder1.imagelist[i][0]}'
-                #print(f'cp {img_path} {repeat_path} ')
-            continue 
+        if folder1.boollist[i]:
+            for j in range(folder2_len):
+                if folder2.boollist[j]:
+                    result=cmpHash(folder1.imagehashlist[i],folder2.imagehashlist[j])
+                    # 若两张图完全一样，则在两个集合中删除这两张图，并且退出当前循环
+                    if result==0:
+                        img1_path=f'{image_path}/{folder1.pdfname}/{folder1.imagelist[i]}'
+                        img2_path=f'{image_path}/{folder2.pdfname}/{folder2.imagelist[j]}'
+                        folder1.boollist[i]=0
+                        folder2.boollist[j]=0
+                        os.system(f'mv {img1_path} {repeat_path} ')
+                        os.system(f'mv {img2_path} {repeat_path} ')
 
     
         
@@ -97,12 +113,13 @@ if __name__=='__main__':
         folderlist.append(ImageFolder(f))
     for folder in folderlist:
         folder.addImage()
-
-
+        print(folder)
     print("begin compare")
-    # print(filelist)
-    # for i in range(total):
-    #     for j in range(i+1,total):
-    #         cmpFolder(folderlist[i],folderlist[j])
-    #         count+=1
-    #         print(f'{count}/{(int)(total-1)*(total)/2}:FINISH COMPARE: {folderlist[i].pdfname}:{folderlist[j].pdfname}')
+    for i in range(total):
+        for j in range(i+1,total):
+            cmpFolder(folderlist[i],folderlist[j])
+            count+=1
+            print(f'{count}/{(int)(total-1)*(total)/2}:FINISH COMPARE: {folderlist[i].pdfname}:{folderlist[j].pdfname}')
+
+    for folder in folderlist:
+        print(folder)
