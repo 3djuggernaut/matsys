@@ -7,6 +7,9 @@ import jconfig as j
 repeat_path=j.load_attr('REPEAT')
 image_path=j.load_attr('IMAGE')
 
+# 同一个PDF的最大图片数，如果大于这个数值则可以认为提取步骤就出现了问题，无需再对比
+max_image_num=100
+
 def dHash(img):
     # 差值hash
     img=cv2.resize(img,(17,16))
@@ -39,6 +42,8 @@ class ImageFolder:
     imagehashlist=[]
     boollist=[]
     imageNum=0
+    isValid=True
+
 
     def __init__(self,pdfname) -> None:
         self.pdfname=pdfname
@@ -46,21 +51,30 @@ class ImageFolder:
         self.imagehashlist=[]
         self.boollist=[]
         self.imageNum=0
+        self.isValid=True
+        path=os.path.join(image_path,self.pdfname)
+        self.imageNum=len(os.listdir(path))
+        for item in os.listdir(path):
+            self.imagelist.append(item)
     
     def __repr__(self) -> None:
         print(self.imageNum)
+        print(self.isValid)
         print(self.boollist)
+
         return f'{self.pdfname}'
     # 将所有的图片先求出hash
 
     def addImage(self):
         path=os.path.join(image_path,self.pdfname)
-        for item in os.listdir(path):
-            self.imagelist.append(item)
+        for item in self.imagelist:
             img=cv2.imread(os.path.join(path,item))
             self.imagehashlist.append(dHash(img))
-        self.imageNum=len(self.imagelist)
         self.boollist=[1 for v in range(len(self.imagelist))]
+        return 
+    
+    def isFolderValid(self):
+        return self.imageNum<=max_image_num
         
 
 def cmpFolder(folder1,folder2):
@@ -106,15 +120,17 @@ def pHash(img):
 if __name__=='__main__':
     filelist=os.listdir(image_path)
     count=0
-    total=len(filelist)
     folderlist=[]
     print("calculating hash...")
     for f in filelist:
-        folderlist.append(ImageFolder(f))
+        t=ImageFolder(f)
+        if t.isFolderValid():
+            folderlist.append(t)
     for folder in folderlist:
+        print(f'calculating:{folder.pdfname}')
         folder.addImage()
-        print(folder)
-    print("begin compare")
+    total=len(folderlist)
+    print(f"begin compare {total}file")
     for i in range(total):
         for j in range(i+1,total):
             cmpFolder(folderlist[i],folderlist[j])

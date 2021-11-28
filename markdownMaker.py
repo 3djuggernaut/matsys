@@ -23,18 +23,18 @@ class Mdfile:
     experiment=''
 
     def __init__(self) -> None:
-        id=0
-        title=''
-        doi=''
-        cem=[]
-        attr1=''
-        attr2=''
-        attr3=''
-        attr1_para=[]
-        attr2_para=[]
-        attr3_para=[]
-        image_path=''
-        experiment=''
+        self.id=0
+        self.title=''
+        self.doi=''
+        self.cem=[]
+        self.attr1=''
+        self.attr2=''
+        self.attr3=''
+        self.attr1_para=[]
+        self.attr2_para=[]
+        self.attr3_para=[]
+        self.image_path=''
+        self.experiment=''
         return
 
     
