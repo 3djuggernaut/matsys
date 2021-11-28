@@ -10,6 +10,7 @@ import markdownMaker as ma
 import jconfig as j
 
 index=0
+processing=j.load_attr("PROCESSING")
 processlist=   [ "fromfile_process",
     "registerHandlePDF_process",
     "getImage_process",
@@ -21,33 +22,49 @@ processlist=   [ "fromfile_process",
     "makeMDProcess" ]
 
 def initProcess():
-    for item in processlist:
-        j.save_attr(item,False)
+    if not processing:
+        for item in processlist:
+            j.save_attr(item,False)
     index=0
-    
+        
 def isDoProcess(index):
-    return j.load_attr(processlist[index])
+    return not j.load_attr(processlist[index])
 
 def finishProcess(index):
     j.save_attr(processlist[index],True)
+    j.save_attr("PROCESSING",True)
     return index+1
+
+def finishAllProcess():
+    j.save_attr("PROCESSING",False)
 
 if __name__=='__main__':
     initProcess()
-    recs.fromfile_process()
+    if isDoProcess(index):
+        recs.fromfile_process()
     index=finishProcess(index)
-    recs.registerHandlePDF_process()
+    if isDoProcess(index):
+        recs.registerHandlePDF_process()
     index=finishProcess(index)
-    im.getImage_process()
+    if isDoProcess(index):
+        im.getImage_process()
     index=finishProcess(index)
-    te.textExtract_process()
+    if isDoProcess(index):
+        te.textExtract_process()
     index=finishProcess(index)
-    pa.paraFilter_process()
+    if isDoProcess(index):
+        pa.paraFilter_process()
     index=finishProcess(index)
-    fi.findExperiment_process()
+    if isDoProcess(index):
+        fi.findExperiment_process()
     index=finishProcess(index)
-    ti.getTitle_process()
+    if isDoProcess(index):
+        ti.getTitle_process()
     index=finishProcess(index)
-    ae.attrExtract_process()
+    if isDoProcess(index):
+        ae.attrExtract_process()
     index=finishProcess(index)
-    ma.makeMD_process()
+    if isDoProcess(index):
+        ma.makeMD_process()
+    index=finishProcess(index)
+    finishAllProcess()
