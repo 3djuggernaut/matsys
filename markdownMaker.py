@@ -6,6 +6,7 @@ pdf_path=jconfig.load_attr("PDF")
 exp_path=jconfig.load_attr("EXP")
 image_path=jconfig.load_attr("IMAGE")
 attr_path=jconfig.load_attr("ATTR")
+maxImageNumOfPDF=jconfig.load_attr("IMAGENUM")
 
 class Mdfile:
     id=0
@@ -98,11 +99,14 @@ class Mdfile:
         fd.write(f'## XRD and SEM Graph\n\n')
 
         # 显示图片，尺寸控制还需要再研究
-
-        for item in os.listdir(self.getImagePath()):
-            fd.write(f'![]({os.path.join(self.getImagePath(),item)})\n\n')
-            # 用来调整图片尺寸的参数
-            # {{:height="100px" width="400px"}}
+        image_num=len(os.listdir(self.getImagePath()))
+        if image_num < maxImageNumOfPDF:
+            for item in os.listdir(self.getImagePath()):
+                fd.write(f'![]({os.path.join(self.getImagePath(),item)})\n\n')
+                # 用来调整图片尺寸的参数
+                # {{:height="100px" width="400px"}}
+        else:
+            fd.write(f'> The image of this PDF is not properly extracted\n\n')
 
         fd.write(f'## Experiment Part\n\n')
         fd.write(f'{self.experiment}')
