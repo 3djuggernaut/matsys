@@ -11,60 +11,43 @@ import jconfig as j
 
 index=0
 processing=j.load_attr("PROCESSING")
-processlist=   [ "fromfile_process",
-    "registerHandlePDF_process",
-    "getImage_process",
-    "textExtract_process",
-    "paraFilter_process",
-    "findExperiment_process",
-    "getTitle_process",
-    "attrExtract_process",
-    "makeMDProcess" ]
+processlist=[ recs.fromfile_process(),
+    recs.registerHandlePDF_process(),
+    im.getImage_process(),
+    te.textExtract_process(),
+    pa.paraFilter_process(),
+    fi.findExperiment_process(),
+    ti.getTitle_process(),
+    ae.attrExtract_process(),
+    ma.makeMDProcess()]
 
 def initProcess():
+    '''初始化,所有步骤未执行'''
     if not processing:
         for item in processlist:
             j.save_attr(item,False)
     index=0
         
-def isDoProcess(index):
-    return not j.load_attr(processlist[index])
+def isProcessDone(index):
+    '''是否已执行'''
+    return j.load_attr(processlist[index])
 
 def finishProcess(index):
+    '''将步骤设置为已执行,并且设置为程序正在运行中'''
     j.save_attr(processlist[index],True)
     j.save_attr("PROCESSING",True)
     return index+1
 
 def finishAllProcess():
+    '''所有步骤执行完,程序不需要再运行'''
     j.save_attr("PROCESSING",False)
+
+
 
 if __name__=='__main__':
     initProcess()
-    if isDoProcess(index):
-        recs.fromfile_process()
-    index=finishProcess(index)
-    if isDoProcess(index):
-        recs.registerHandlePDF_process()
-    index=finishProcess(index)
-    if isDoProcess(index):
-        im.getImage_process()
-    index=finishProcess(index)
-    if isDoProcess(index):
-        te.textExtract_process()
-    index=finishProcess(index)
-    if isDoProcess(index):
-        pa.paraFilter_process()
-    index=finishProcess(index)
-    if isDoProcess(index):
-        fi.findExperiment_process()
-    index=finishProcess(index)
-    if isDoProcess(index):
-        ti.getTitle_process()
-    index=finishProcess(index)
-    if isDoProcess(index):
-        ae.attrExtract_process()
-    index=finishProcess(index)
-    if isDoProcess(index):
-        ma.makeMD_process()
-    index=finishProcess(index)
+    for item in processlist:
+        if not isProcessDone():
+            item()
+        index=finishProcess()
     finishAllProcess()
