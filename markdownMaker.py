@@ -119,25 +119,6 @@ class Mdfile:
         self.attr2_para.clear()
         self.attr3_para.clear()
 
-
-def test():
-    m=Mdfile()
-    m.add_doi('10.1063/1.2200480')
-    m.add_cem('cem')
-    m.add_attr1('attr1')
-    m.add_attr2('attr2')
-    m.add_attr3('attr3')
-    m.add_title('title')
-    m.add_attr1_para('Some thing about 1')
-    m.add_attr1_para('Another thing about 1')
-    m.add_attr1_para('about 1')
-    m.add_attr1_para('about attr1')
-    m.add_attr2_para('Some thing about 2')
-    m.add_attr2_para('Another thing about 2')
-    m.add_attr2_para('Some thing about 3')
-    m.add_attr3_para('Another about 3')
-    m.makemd()
-
 def makeMD_process():
     jsonobj=recs.load_recs()
     index=0
